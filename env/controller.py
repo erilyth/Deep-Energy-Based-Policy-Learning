@@ -5,9 +5,12 @@ class Player:
         self.y = y
         self.terrain = terrain
 
-    def action(self, x_m, y_m):
-        self.x += x_m
-        self.y += y_m
+    def getposition(self):
+        return (self.x, self.y)
+
+    def action(self, xy_m):
+        self.x += xy_m[0]
+        self.y += xy_m[1]
         self.x = min(self.terrain.bounds_x[1], max(self.x, self.terrain.bounds_x[0]))
         self.y = min(self.terrain.bounds_y[1], max(self.y, self.terrain.bounds_y[0]))
         return self.terrain.getreward()
