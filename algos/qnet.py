@@ -2,6 +2,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn import init
 
 class QNet(nn.Module):
     def __init__(self):
@@ -13,5 +14,5 @@ class QNet(nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = F.tanh(self.fc3(x))
         return x

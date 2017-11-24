@@ -8,17 +8,23 @@ from controller import Player
 
 class Terrain:
     def __init__(self):
-        self.reward_locs = [[-10.0, -10.0], [-10.0, 10.0], [10.0, -10.0], [10.0, 10.0]]
+        self.reward_locs = [[5.0, 5.0], [-5.0, 5.0], [5.0, -5.0], [-5.0, -5.0]]
         self.reward_range = 1.0
-        self.reward_goal = 30.0
-        self.bounds_x = [-12.0, 12.0]
-        self.bounds_y = [-12.0, 12.0]
+        self.reward_goal = 15.0
+        self.bounds_x = [-8.0, 8.0]
+        self.bounds_y = [-8.0, 8.0]
         self.player = Player(0.0, 0.0, self)
 
     def getreward(self):
         reward = 0.0
+        """
+        max_score_temp = -10000
         for x_pos, y_pos in self.reward_locs:
-            reward -= np.sqrt((self.player.x - x_pos) ** 2 + (self.player.y - y_pos) ** 2) / 50
+            max_score_temp = max(max_score_temp,-(np.sqrt((self.player.x - x_pos) ** 2 + (self.player.y - y_pos) ** 2) / 30))
+        reward += max_score_temp
+        """
+        for x_pos, y_pos in self.reward_locs:
+            reward -= 0.1
             if abs(self.player.x - x_pos) < self.reward_range and abs(self.player.y - y_pos) < self.reward_range:
                 reward += self.reward_goal
         return reward
@@ -32,13 +38,14 @@ class Terrain:
     def plotgame(self):
         plt.clf()
         for x_pos, y_pos in self.reward_locs:
-            plt.plot([x_pos,], [y_pos,], marker='o', markersize=3, color="green")
+            plt.plot([x_pos,], [y_pos,], marker='o', markersize=10, color="green")
+        plt.xlim([-8, 8])
+        plt.ylim([-8, 8])
         plt.plot([self.player.x,], [self.player.y,], marker='x', markersize=3, color="red")
         plt.pause(0.001)
 
     def resetgame(self):
         self.player = Player(0.0, 0.0, self)
-        plt.close()
 
 """
 terrain = Terrain()
