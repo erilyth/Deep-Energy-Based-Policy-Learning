@@ -77,11 +77,12 @@ class SoftQLearning:
                 break
 
     def rbf_kernel(self, input1, input2):
-        return np.exp(-3.14*(abs(np.dot(input1,input1) - np.dot(input2,input2))))
+        return np.exp(-3.14*(np.dot(input1-input2,input1-input2)))
 
     def rbf_kernel_grad(self, input1, input2):
-        mult_val = self.rbf_kernel(input1, input2) * -2 * 3.14 * np.sign(np.dot(input1,input1) - np.dot(input2,input2))
-        return [x * mult_val for x in input1]
+        diff = (input1-input2)
+        mult_val = self.rbf_kernel(input1, input2) * -2 * 3.14 
+        return [x * mult_val for x in diff]
 
     def train_network(self):
         for t in range(50):
