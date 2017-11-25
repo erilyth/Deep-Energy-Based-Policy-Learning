@@ -24,7 +24,7 @@ class SoftQLearning:
         self.q_net = QNet()
         self.q_optimizer = optim.SGD(self.q_net.parameters(), lr=0.0001)
         self.policy_net = PolicyNet()
-        self.policy_optimizer = optim.SGD(self.policy_net.parameters(), lr=0.0001)
+        self.policy_optimizer = optim.SGD(self.policy_net.parameters(), lr=0.001)
         self.terrain = Terrain()
 
         self.replay_buffer_maxlen = 50
@@ -76,11 +76,11 @@ class SoftQLearning:
                 self.terrain.resetgame()
                 break
 
-    def gaussian_kernel(self, input1, input2):
-        return np.exp(-3.14*(np.dot(input1,input1) + np.dot(input2,input2)))
+    def rbf_kernel(self, input1, input2):
+        return np.exp(-3.14*(abs(np.dot(input1,input1) - np.dot(input2,input2))))
 
-    def gaussian_kernel_grad(self, input1, input2):
-        mult_val = self.gaussian_kernel(input1, input2) * -2 * 3.14
+    def rbf_kernel_grad(self, input1, input2):
+        mult_val = self.rbf_kernel(input1, input2) * -2 * 3.14 * np.sign(np.dot(input1,input1) - np.dot(input2,input2))
         return [x * mult_val for x in input1]
 
     def train_network(self):
@@ -133,11 +133,12 @@ class SoftQLearning:
                 loss.backward()
 
                 action_gradient_temp = [inputs_temp.grad.data.numpy()[0][2], inputs_temp.grad.data.numpy()[0][3]]
-                kernel_val = self.gaussian_kernel(list(action_temp), action_predicted.data.numpy()[0])
-                kernel_grad = self.gaussian_kernel_grad(list(action_temp), action_predicted.data.numpy()[0])
+                kernel_val = self.rbf_kernel(list(action_temp), action_predicted.data.numpy()[0])
+                kernel_grad = self.rbf_kernel_grad(list(action_temp), action_predicted.data.numpy()[0])
                 final_temp_grad = ([x * kernel_val for x in action_gradient_temp] + [x * self.value_alpha for x in kernel_grad])
                 final_action_gradient[0] += (1.0/32) * final_temp_grad[0]
                 final_action_gradient[1] += (1.0/32) * final_temp_grad[1]
+            print final_action_gradient
             action_predicted.backward(torch.FloatTensor([final_action_gradient]))
 
             # Apply the updates using the optimizers
